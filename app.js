@@ -6,10 +6,14 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 
+var passport = require('passport');
+var session = require('express-session');
+
 var passportConfig = require('./config/passport');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
+var authentication = require('./routes/authentication');
 
 var app = express();
 
@@ -27,6 +31,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(session({secret: 'secret key'}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use('/auth', authentication);
+
+app.use(passportConfig.ensureAuthenticated);
 app.use('/', routes);
 app.use('/users', users);
 
